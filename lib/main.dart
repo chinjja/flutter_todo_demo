@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_todo_demo/pages/sign_in_page.dart';
@@ -15,11 +16,30 @@ import 'secret/firebase_config.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseConfig.platformOptions);
-  runApp(const MyApp());
+  final firebases = Firebases(
+    auth: FirebaseAuth.instance,
+    store: FirebaseFirestore.instance,
+  );
+  runApp(MyApp(firebases));
+}
+
+class Firebases {
+  final FirebaseAuth auth;
+  final FirebaseFirestore store;
+
+  Firebases({
+    required this.auth,
+    required this.store,
+  });
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp(
+    this.firebases, {
+    Key? key,
+  }) : super(key: key);
+
+  final Firebases firebases;
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +49,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.indigo,
         brightness: Brightness.dark,
       ),
-      initialRoute: FirebaseAuth.instance.currentUser == null
+      initialRoute: firebases.auth.currentUser == null
           ? SignInPage.routeName
           : TodoListPage.routeName,
       routes: {
-        SignInPage.routeName: (context) => const SignInPage(),
-        TodoListPage.routeName: (context) => const TodoListPage(),
+        SignInPage.routeName: (context) => SignInPage(firebases),
+        TodoListPage.routeName: (context) => TodoListPage(firebases),
         TodoDetailsPage.routeName: (context) => const TodoDetailsPage(),
       },
     );

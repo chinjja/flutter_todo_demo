@@ -1,11 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_todo_demo/data/commons.dart';
+import 'package:flutter_todo_demo/main.dart';
 import 'package:flutter_todo_demo/pages/todo_list_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_demo/secret/oauth_config.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInPage extends StatefulWidget {
   static const routeName = '/sign_in';
-  const SignInPage({Key? key}) : super(key: key);
+  const SignInPage(this.firebases, {Key? key}) : super(key: key);
 
+  final Firebases firebases;
   @override
   _SignInPageState createState() => _SignInPageState();
 }
@@ -78,7 +83,7 @@ class _SignInPageState extends State<SignInPage> {
             padding: MaterialStateProperty.all(const EdgeInsets.all(10))),
         onPressed: () async {
           try {
-            await Utils.signInWithGoogle();
+            await _signInWithGoogle();
             Navigator.pushNamedAndRemoveUntil(
               context,
               TodoListPage.routeName,
@@ -95,5 +100,18 @@ class _SignInPageState extends State<SignInPage> {
         label: const Text('Sign In with Google'),
       ),
     );
+  }
+
+  Future<UserCredential?> _signInWithGoogle() async {
+    final googleSignIn = GoogleSignIn(
+      clientId: OAutoConfig.appClientId,
+    );
+    final user = await googleSignIn.signIn();
+    final auth = await user!.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: auth.accessToken,
+      idToken: auth.idToken,
+    );
+    return await widget.firebases.auth.signInWithCredential(credential);
   }
 }
