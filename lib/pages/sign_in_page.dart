@@ -47,7 +47,7 @@ class _SignInPageState extends State<SignInPage> {
           ),
           const SizedBox(height: 20),
           const Text(
-            'FlutterFire',
+            'Flutter Todo',
             style: TextStyle(
               color: Colors.yellow,
               fontSize: 40,
