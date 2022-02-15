@@ -29,6 +29,7 @@ class _TodoListPageState extends State<TodoListPage> {
   @override
   Widget build(BuildContext context) {
     final auth = widget.firebases.auth;
+    final uid = auth.currentUser!.uid;
     return Scaffold(
       appBar: AppBar(
         title: StreamBuilder<User?>(
@@ -59,7 +60,7 @@ class _TodoListPageState extends State<TodoListPage> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            stream: todos.snapshots(),
+            stream: todos.where('uid', isEqualTo: uid).snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const Center(
@@ -77,6 +78,7 @@ class _TodoListPageState extends State<TodoListPage> {
                   final item = docs[index];
                   final data = item.data();
                   final todo = Todo(
+                    uid: auth.currentUser!.uid,
                     id: item.id,
                     title: data['title'],
                     memo: data['memo'],
@@ -100,7 +102,7 @@ class _TodoListPageState extends State<TodoListPage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () async {
-          _details(context, const Todo());
+          _details(context, Todo(uid: uid));
         },
       ),
     );
@@ -116,15 +118,9 @@ class _TodoListPageState extends State<TodoListPage> {
       todos.doc(todo.id).delete();
     } else {
       if (result.id == null) {
-        todos.add({
-          'title': result.title,
-          'memo': result.memo,
-        });
+        todos.add(result.toJson());
       } else {
-        todos.doc(result.id).set({
-          'title': result.title,
-          'memo': result.memo,
-        });
+        todos.doc(result.id).set(result.toJson());
       }
     }
   }
