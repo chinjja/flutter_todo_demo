@@ -138,7 +138,7 @@ class _TodoListPageState extends State<TodoListPage> {
       if (result.id == null) {
         todos.add(result.toJson());
       } else {
-        todos.doc(result.id).set(result.toJson());
+        todos.doc(result.id).update(result.toJson());
       }
     }
   }
