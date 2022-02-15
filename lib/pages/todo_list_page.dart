@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_todo_demo/data/commons.dart';
 import 'package:flutter_todo_demo/main.dart';
 import 'package:flutter_todo_demo/model/types.dart';
 import 'package:flutter_todo_demo/pages/sign_in_page.dart';
@@ -101,7 +100,7 @@ class _TodoListPageState extends State<TodoListPage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () async {
-          _details(context, Todo(id: Utils.uuid()));
+          _details(context, const Todo());
         },
       ),
     );
@@ -116,10 +115,17 @@ class _TodoListPageState extends State<TodoListPage> {
     if (result == null) {
       todos.doc(todo.id).delete();
     } else {
-      todos.doc(result.id).set({
-        'title': result.title,
-        'memo': result.memo,
-      });
+      if (result.id == null) {
+        todos.add({
+          'title': result.title,
+          'memo': result.memo,
+        });
+      } else {
+        todos.doc(result.id).set({
+          'title': result.title,
+          'memo': result.memo,
+        });
+      }
     }
   }
 }

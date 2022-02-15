@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_todo_demo/data/commons.dart';
 import 'package:flutter_todo_demo/main.dart';
 import 'package:flutter_todo_demo/pages/todo_list_page.dart';
 import 'package:flutter/material.dart';

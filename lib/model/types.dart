@@ -1,10 +1,10 @@
 class Todo {
-  final String id;
+  final String? id;
   final String? title;
   final String? memo;
 
   const Todo({
-    required this.id,
+    this.id,
     this.title,
     this.memo,
   });
