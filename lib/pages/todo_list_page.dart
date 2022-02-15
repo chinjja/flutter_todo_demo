@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26,6 +27,28 @@ class TodoListPage extends StatefulWidget {
 class _TodoListPageState extends State<TodoListPage> {
   late final todos = widget.firebases.store.collection('todos');
 
+  late StreamSubscription subs;
+
+  @override
+  void initState() {
+    super.initState();
+    subs = widget.firebases.auth.authStateChanges().listen((user) {
+      if (user == null) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          SignInPage.routeName,
+          (route) => false,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    subs.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = widget.firebases.auth;
@@ -45,11 +68,6 @@ class _TodoListPageState extends State<TodoListPage> {
           IconButton(
             onPressed: () async {
               await auth.signOut();
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                SignInPage.routeName,
-                (route) => false,
-              );
             },
             icon: const Icon(
               Icons.logout,
