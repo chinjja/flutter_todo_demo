@@ -30,12 +30,10 @@ dependencies:
   flutter:
     sdk: flutter
   provider:
-  uuid:
 
   google_sign_in:
 
   firebase_core:
-  firebase_analytics:
   firebase_auth:
   cloud_firestore:
 
@@ -46,6 +44,10 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  firebase_auth_mocks:
+  firebase_storage_mocks:
+  fake_cloud_firestore:
+  google_sign_in_mocks:
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

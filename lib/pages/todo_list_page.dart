@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_todo_demo/data/commons.dart';
+import 'package:flutter_todo_demo/common/utils.dart';
+import 'package:flutter_todo_demo/main.dart';
 import 'package:flutter_todo_demo/model/types.dart';
 import 'package:flutter_todo_demo/pages/sign_in_page.dart';
 import 'package:flutter_todo_demo/pages/todo_details_page.dart';
@@ -12,21 +14,50 @@ export 'todo_details_page.dart';
 
 class TodoListPage extends StatefulWidget {
   static const routeName = '/todo_list';
-  const TodoListPage({Key? key}) : super(key: key);
+  const TodoListPage(
+    this.firebases, {
+    Key? key,
+  }) : super(key: key);
+
+  final Firebases firebases;
 
   @override
   _TodoListPageState createState() => _TodoListPageState();
 }
 
 class _TodoListPageState extends State<TodoListPage> {
-  final todos = FirebaseFirestore.instance.collection('todos');
+  late final todos = widget.firebases.store.collection('todos');
+
+  late StreamSubscription subs;
+
+  @override
+  void initState() {
+    super.initState();
+    subs = widget.firebases.auth.authStateChanges().listen((user) {
+      if (user == null) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          SignInPage.routeName,
+          (route) => false,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    subs.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final auth = widget.firebases.auth;
+    final uid = auth.currentUser!.uid;
     return Scaffold(
       appBar: AppBar(
         title: StreamBuilder<User?>(
-          stream: FirebaseAuth.instance.userChanges(),
+          stream: auth.userChanges(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return Text('${snapshot.data!.displayName}님 반가워요.');
@@ -37,12 +68,7 @@ class _TodoListPageState extends State<TodoListPage> {
         actions: [
           IconButton(
             onPressed: () async {
-              await Utils.signOut();
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                SignInPage.routeName,
-                (route) => false,
-              );
+              await auth.signOut();
             },
             icon: const Icon(
               Icons.logout,
@@ -53,7 +79,7 @@ class _TodoListPageState extends State<TodoListPage> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            stream: todos.snapshots(),
+            stream: todos.where('uid', isEqualTo: uid).snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const Center(
@@ -71,6 +97,7 @@ class _TodoListPageState extends State<TodoListPage> {
                   final item = docs[index];
                   final data = item.data();
                   final todo = Todo(
+                    uid: auth.currentUser!.uid,
                     id: item.id,
                     title: data['title'],
                     memo: data['memo'],
@@ -94,7 +121,7 @@ class _TodoListPageState extends State<TodoListPage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () async {
-          _details(context, Todo(id: Utils.uuid()));
+          _details(context, Todo(uid: uid));
         },
       ),
     );
@@ -108,11 +135,13 @@ class _TodoListPageState extends State<TodoListPage> {
     ) as Todo?;
     if (result == null) {
       todos.doc(todo.id).delete();
+      showSnackbar(context, '메모를 삭제했습니다.');
     } else {
-      todos.doc(result.id).set({
-        'title': result.title,
-        'memo': result.memo,
-      });
+      if (result.id == null) {
+        todos.add(result.toJson());
+      } else {
+        todos.doc(result.id).update(result.toJson());
+      }
     }
   }
 }
