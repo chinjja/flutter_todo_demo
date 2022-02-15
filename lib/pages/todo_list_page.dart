@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_todo_demo/common/utils.dart';
 import 'package:flutter_todo_demo/main.dart';
 import 'package:flutter_todo_demo/model/types.dart';
 import 'package:flutter_todo_demo/pages/sign_in_page.dart';
@@ -134,6 +135,7 @@ class _TodoListPageState extends State<TodoListPage> {
     ) as Todo?;
     if (result == null) {
       todos.doc(todo.id).delete();
+      showSnackbar(context, '메모를 삭제했습니다.');
     } else {
       if (result.id == null) {
         todos.add(result.toJson());
