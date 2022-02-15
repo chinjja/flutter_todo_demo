@@ -89,7 +89,23 @@ class _SignInPageState extends State<SignInPage> {
               (route) => false,
             );
           } catch (e) {
-            print('ex $e');
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text(e.runtimeType.toString()),
+                  content: Text(e.toString()),
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            );
           }
         },
         icon: Image.asset(
