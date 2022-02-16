@@ -30,6 +30,7 @@ dependencies:
   flutter:
     sdk: flutter
   provider:
+  intl:
 
   google_sign_in:
 
