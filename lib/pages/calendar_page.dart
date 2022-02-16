@@ -115,7 +115,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   void _today() {
-    _scrollTo(DateTime.now());
+    _scrollToByDate(DateTime.now());
   }
 
   void _goto() async {
@@ -126,18 +126,22 @@ class _CalendarPageState extends State<CalendarPage> {
       lastDate: DateTime(2100),
     );
     if (dt != null) {
-      _scrollTo(dt);
+      _scrollToByDate(dt);
     }
   }
 
-  void _scrollTo(DateTime to, [bool animate = true]) {
-    // final firstDayOffset =
-    // DateUtils.firstDayOffset(to.year, to.month, _localizations);
-    // to = DateTime(to.year, to.month, 1).subtract(
-    // Duration(days: firstDayOffset),
-    // );
+  void _scrollToByDate(DateTime to, [bool animate = true]) {
+    final firstDayOffset =
+        DateUtils.firstDayOffset(to.year, to.month, _localizations);
+    to = DateTime(to.year, to.month, 1).subtract(
+      Duration(days: firstDayOffset),
+    );
 
-    final index = to.millisecondsSinceEpoch ~/ dayInMillis;
+    final index = to.millisecondsSinceEpoch ~/ dayInMillis - firstDayOffset + 7;
+    _scrollToByIndex(index, animate);
+  }
+
+  void _scrollToByIndex(int index, [bool animate = true]) {
     final offset = index * _rowHeight / 7;
     if (animate) {
       _controller.animateTo(
