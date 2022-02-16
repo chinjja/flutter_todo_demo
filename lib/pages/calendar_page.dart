@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class CalendarPage extends StatefulWidget {
+  static const routeName = '/calendar';
   const CalendarPage({Key? key}) : super(key: key);
 
   @override
@@ -42,6 +43,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final now = DateTime.now();
     final yoils = _yoil();
     return Scaffold(
@@ -63,8 +65,8 @@ class _CalendarPageState extends State<CalendarPage> {
         children: [
           Container(
             height: 26,
-            decoration: const BoxDecoration(
-              color: Colors.blue,
+            decoration: BoxDecoration(
+              color: theme.primaryColor,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -183,19 +185,20 @@ class Item extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     Color? color;
     if (!DateUtils.isSameMonth(activeDate, date)) {
-      color = Colors.grey[300];
+      color = theme.secondaryHeaderColor;
     }
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
         color: color,
         border: Border(
-          bottom: const BorderSide(color: Colors.grey),
+          bottom: BorderSide(color: theme.shadowColor),
           right: index % 7 == 6
               ? BorderSide.none
-              : const BorderSide(color: Colors.grey),
+              : BorderSide(color: theme.shadowColor),
         ),
       ),
       child: Column(
